@@ -134,6 +134,15 @@ public class JarService {
         this.jarEntries.add(jarEntry);
     }
 
+    public void removeJarEntry(JarEntry jarEntry) {
+        for (int i = 0; i < this.jarEntries.size(); i++) {
+            if (this.jarEntries.get(i).getName().equals(jarEntry.getName())) {
+                this.jarEntries.remove(this.jarEntries.get(i));
+                return;
+            }
+        }
+    }
+
     public void exportJar() throws IOException {
         if (this.jarPath != null && this.jarPath.endsWith(".jar")) {
             if (this.jarOutputStream != null) {

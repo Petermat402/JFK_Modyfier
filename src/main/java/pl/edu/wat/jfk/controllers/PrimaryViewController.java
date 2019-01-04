@@ -343,7 +343,15 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
-    private void removeClass() {}
+    private void removeClass() {
+        try {
+            JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
+            classService.removeClass(jarEntry.getName());
+            handleSuccess();
+        } catch (WrongPathException e) {
+           handleException(e);
+        }
+    }
     private void addInterface() {}
     private void removeInterface() {}
     private void addPackage() {}

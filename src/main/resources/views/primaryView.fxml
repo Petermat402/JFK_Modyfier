@@ -38,8 +38,8 @@
                   <Button fx:id="overwriteButton" alignment="CENTER" layoutX="20.0" layoutY="140.0" minWidth="40.0" mnemonicParsing="false" onAction="#overwriteAction" prefWidth="150.0" text="Overwrite" />
                   <Button fx:id="addBeginningButton" layoutX="20.0" layoutY="185.0" minWidth="40.0" mnemonicParsing="false" onAction="#addAtBeginningMethod" prefWidth="150.0" text="Add at beginning" />
                   <Button fx:id="addEndButton" layoutX="20.0" layoutY="230.0" minWidth="40.0" mnemonicParsing="false" onAction="#addAtEndMethod" prefWidth="150.0" text="Add at end" />
-                  <Button fx:id="addClassButton" layoutX="20.0" layoutY="362.0" minWidth="40.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="150.0" text="Add" onAction="#addClassAction" />
-                  <Button fx:id="removeClassButton" layoutX="20.0" layoutY="406.0" minWidth="40.0" mnemonicParsing="false" prefWidth="150.0" text="Remove" onAction="#removeClassAction" />
+                  <Button fx:id="addClassButton" layoutX="20.0" layoutY="362.0" minWidth="40.0" mnemonicParsing="false" onAction="#addClassAction" prefHeight="31.0" prefWidth="150.0" text="Add" />
+                  <Button fx:id="removeClassButton" layoutX="20.0" layoutY="406.0" minWidth="40.0" mnemonicParsing="false" onAction="#removeClassAction" prefWidth="150.0" text="Remove" />
                   <ComboBox fx:id="classChoice" layoutX="20.0" layoutY="319.0" prefWidth="150.0" />
                </children></Pane>
          </children>
@@ -52,6 +52,7 @@
                   <TextField fx:id="jarPath" layoutX="14.0" layoutY="38.0" prefHeight="31.0" prefWidth="438.0" />
                   <ProgressIndicator fx:id="progressIndicator" layoutX="571.0" layoutY="43.0" progress="0.0" />
                   <Circle fx:id="indicatorCircle" fill="#feff1f" layoutX="639.0" layoutY="56.0" radius="16.0" stroke="BLACK" strokeType="INSIDE" />
+                  <Label layoutX="14.0" layoutY="4.0" prefHeight="21.0" prefWidth="289.0" text="Enter path to .jar file" />
                </children>
             </Pane>
             <Pane prefHeight="107.0" prefWidth="212.0">
