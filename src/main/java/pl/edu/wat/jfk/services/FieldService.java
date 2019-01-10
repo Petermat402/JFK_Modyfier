@@ -32,7 +32,7 @@ public class FieldService {
 
             for (CtField field : this.fields) {
                 String fieldType = field.getType().getName();
-                resultFields.add(fieldType.substring(fieldType.lastIndexOf(".") + 1) + " " + field.getName());
+                resultFields.add(Modifier.toString(field.getModifiers()) + " " + fieldType.substring(fieldType.lastIndexOf(".") + 1) + " " + field.getName());
             }
         } catch (NotFoundException e) {
             e.printStackTrace();

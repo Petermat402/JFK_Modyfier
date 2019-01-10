@@ -21,6 +21,8 @@ public class JarService {
     private PackageService packageService;
     private ObservableList<JarEntry> jarEntries;
     private Manifest manifest;
+    private ClassPath applicationPath;
+    private ClassPath systemPath;
 
     public JarService() {
 
@@ -93,8 +95,8 @@ public class JarService {
             }
             try {
                 classPool = new ClassPool();
-                classPool.appendClassPath("./application/");
-                classPool.appendSystemPath();
+                applicationPath = classPool.appendClassPath("./application/");
+                systemPath = classPool.appendSystemPath();
             } catch (NotFoundException e) {
                 e.printStackTrace();
             } finally {
@@ -154,6 +156,8 @@ public class JarService {
             }
             String outputPath = this.jarPath.replace(".jar", "02.jar");
             this.jarOutputStream = new JarOutputStream(new FileOutputStream(outputPath), this.manifest);
+            classPool.removeClassPath(applicationPath);
+            classPool.removeClassPath(systemPath);
             File application = new File("application");
             addToJar(application, this.jarOutputStream);
             this.jarOutputStream.close();
@@ -202,5 +206,12 @@ public class JarService {
             if (in != null)
                 in.close();
         }
+    }
+
+    public boolean removeFile(String classPath) {
+        String filePath = classPath.replace(".", "\\");
+        filePath = filePath.replace("\\class", ".class");
+        File file = new File("application\\" + filePath);
+        return file.delete();
     }
 }

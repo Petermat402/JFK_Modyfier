@@ -31,8 +31,15 @@ public class MethodService {
             CtClass ctClass = classPool.get(classPath);
             this.ctMethods = asList(ctClass.getDeclaredMethods());
             for (CtMethod method : this.ctMethods) {
-                String methodString = method.getLongName().replace(classPath + ".", "");
-                methods.add(methodString);
+                String methodName = method.getLongName().replace(classPath + ".", "");
+                String methodReturnType = method.getReturnType().getName();
+                StringBuilder methodString = new StringBuilder()
+                        .append(Modifier.toString(method.getModifiers()))
+                        .append(" ")
+                        .append(methodReturnType.substring(methodReturnType.lastIndexOf(".") + 1))
+                        .append(" ")
+                        .append(methodName);
+                methods.add(methodString.toString());
             }
         } catch (NotFoundException e) {
             e.printStackTrace();
@@ -54,9 +61,10 @@ public class MethodService {
     public void overwriteMethod(String classPath, String methodName, String methodCode) throws WrongPathException, NoSuchMethodException, CannotCompileException, NotFoundException, IOException {
         ClassPool classPool = jarService.getClassPool();
         String newClassPath = jarService.adjustClassPath(classPath);
+        String newMethodName = methodName.substring(methodName.lastIndexOf(" ") + 1);
         CtClass ctClass = classPool.get(newClassPath);
         ctClass.defrost();
-        CtMethod methodToOverwrite = findMethod(methodName, newClassPath);
+        CtMethod methodToOverwrite = findMethod(newMethodName, newClassPath);
         methodToOverwrite.setBody(methodCode);
         ctClass.writeFile("./application/");
         jarService.updateJarEntries(new JarEntry(classPath));
@@ -66,9 +74,10 @@ public class MethodService {
     public void insertAtBeginning(String classPath, String methodName, String methodCode) throws WrongPathException, NoSuchMethodException, CannotCompileException, NotFoundException, IOException {
         ClassPool classPool = jarService.getClassPool();
         String newClassPath = jarService.adjustClassPath(classPath);
+        String newMethodName = methodName.substring(methodName.lastIndexOf(" ") + 1);
         CtClass ctClass = classPool.get(newClassPath);
         ctClass.defrost();
-        CtMethod methodToModify = findMethod(methodName, newClassPath);
+        CtMethod methodToModify = findMethod(newMethodName, newClassPath);
         methodToModify.insertBefore(methodCode);
         ctClass.writeFile("./application/");
         jarService.updateJarEntries(new JarEntry(classPath));
@@ -77,9 +86,10 @@ public class MethodService {
     public void insertAtEnd(String classPath, String methodName, String methodCode) throws WrongPathException, NoSuchMethodException, CannotCompileException, NotFoundException, IOException {
         ClassPool classPool = jarService.getClassPool();
         String newClassPath = jarService.adjustClassPath(classPath);
+        String newMethodName = methodName.substring(methodName.lastIndexOf(" ") + 1);
         CtClass ctClass = classPool.get(newClassPath);
         ctClass.defrost();
-        CtMethod methodToModify = findMethod(methodName, newClassPath);
+        CtMethod methodToModify = findMethod(newMethodName, newClassPath);
         methodToModify.insertAfter(methodCode);
         ctClass.writeFile("./application/");
         jarService.updateJarEntries(new JarEntry(classPath));
@@ -89,9 +99,10 @@ public class MethodService {
     public void removeMethod(String classPath, String methodName) throws WrongPathException, CannotCompileException, NoSuchMethodException, NotFoundException, IOException {
         ClassPool classPool = jarService.getClassPool();
         String newClassPath = jarService.adjustClassPath(classPath);
+        String newMethodName = methodName.substring(methodName.lastIndexOf(" ") + 1);
         CtClass ctClass = classPool.get(newClassPath);
         ctClass.defrost();
-        CtMethod methodToRemove = findMethod(methodName, newClassPath);
+        CtMethod methodToRemove = findMethod(newMethodName, newClassPath);
         ctClass.removeMethod(methodToRemove);
         ctClass.writeFile("./application/");
         jarService.updateJarEntries(new JarEntry(classPath));

@@ -22,6 +22,7 @@ public class PrimaryViewController {
     private static MethodService methodService;
     private static ClassService classService;
     private static PackageService packageService;
+    private static IntefaceService intefaceService;
 
     @FXML
     private ListView classList;
@@ -65,6 +66,7 @@ public class PrimaryViewController {
         methodService = new MethodService(jarService, modifierService);
         packageService = new PackageService(jarService);
         classService = new ClassService(jarService, modifierService);
+        intefaceService = new IntefaceService(jarService, modifierService);
     }
 
     private void addChoices() {
@@ -348,12 +350,27 @@ public class PrimaryViewController {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             classService.removeClass(jarEntry.getName());
             handleSuccess();
-        } catch (WrongPathException e) {
+        } catch (WrongPathException | NotFoundException e) {
            handleException(e);
         }
     }
-    private void addInterface() {}
-    private void removeInterface() {}
+    private void addInterface() {
+        try {
+            intefaceService.addInterface(textArea.getText());
+            handleSuccess();
+        } catch (CannotCompileException | IOException e) {
+            handleException(e);
+        }
+    }
+    private void removeInterface() {
+        try {
+            JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
+            intefaceService.removeInterface(jarEntry.getName());
+            handleSuccess();
+        } catch (WrongPathException | NotFoundException e) {
+            handleException(e);
+        }
+    }
     private void addPackage() {}
     private void removePackage() {}
 

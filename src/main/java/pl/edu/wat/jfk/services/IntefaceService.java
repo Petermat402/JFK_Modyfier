@@ -10,26 +10,26 @@ import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarEntry;
 
-public class ClassService {
+public class IntefaceService {
     private JarService jarService;
     private ModifierService modifierService;
 
-    public ClassService(JarService jarService, ModifierService modifierService) {
+    public IntefaceService(JarService jarService, ModifierService modifierService) {
         this.jarService = jarService;
         this.modifierService = modifierService;
     }
 
-    public void addClass(String className) throws CannotCompileException, IOException {
+    public void addInterface(String intefaceName) throws CannotCompileException, IOException {
         ClassPool classPool = jarService.getClassPool();
-        int modifier = modifierService.getModifier(className);
-        className = modifierService.eliminateRedundantModifierWords(className);
-        CtClass ctClass = classPool.makeClass(className);
+        int modifier = modifierService.getModifier(intefaceName);
+        intefaceName = modifierService.eliminateRedundantModifierWords(intefaceName);
+        CtClass ctClass = classPool.makeInterface(intefaceName);
         ctClass.setModifiers(modifier);
         ctClass.writeFile("./application/");
-        jarService.updateJarEntries(new JarEntry(className + ".class"));
+        jarService.updateJarEntries(new JarEntry(intefaceName + ".class"));
     }
 
-    public void removeClass(String classPath) throws WrongPathException, NotFoundException {
+    public void removeInterface(String classPath) throws WrongPathException, NotFoundException {
         ClassPool classPool = jarService.getClassPool();
         String newClassPath = jarService.adjustClassPath(classPath);
         CtClass ctClass = classPool.get(newClassPath);
