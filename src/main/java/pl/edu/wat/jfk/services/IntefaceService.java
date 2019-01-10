@@ -6,26 +6,39 @@ import javassist.CtClass;
 import javassist.NotFoundException;
 import pl.edu.wat.jfk.exceptions.WrongPathException;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.jar.JarEntry;
 
 public class IntefaceService {
     private JarService jarService;
     private ModifierService modifierService;
+    private ClassService classService;
 
-    public IntefaceService(JarService jarService, ModifierService modifierService) {
+    public IntefaceService(JarService jarService, ModifierService modifierService, ClassService classService) {
         this.jarService = jarService;
         this.modifierService = modifierService;
+        this.classService = classService;
     }
 
-    public void addInterface(String intefaceName) throws CannotCompileException, IOException {
+    public void addInterface(String intefaceName) throws CannotCompileException, IOException, NotFoundException {
         ClassPool classPool = jarService.getClassPool();
         int modifier = modifierService.getModifier(intefaceName);
         intefaceName = modifierService.eliminateRedundantModifierWords(intefaceName);
+
+        CtClass superClass = classService.getSuperClass(intefaceName, classPool);
+        List<CtClass> interfaces = classService.getInterfaces(intefaceName, classPool);
+
         CtClass ctClass = classPool.makeInterface(intefaceName);
         ctClass.setModifiers(modifier);
-        ctClass.writeFile("./application/");
+
+        if (superClass != null) {
+            ctClass.setSuperclass(superClass);
+        }
+        if (!interfaces.isEmpty()) {
+            ctClass.setInterfaces(interfaces.toArray(new CtClass[interfaces.size()]));
+        }
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(intefaceName + ".class"));
     }
 

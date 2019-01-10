@@ -83,7 +83,7 @@ public class JarService {
             }
             this.jarPath = jarPath;
 
-            unzipJar("./application/", this.jarPath);
+            unzipJar("./newApplication/", this.jarPath);
 
             File jarFile = new File(jarPath);
             FileInputStream fileInputStream = new FileInputStream(jarFile);
@@ -95,7 +95,7 @@ public class JarService {
             }
             try {
                 classPool = new ClassPool();
-                applicationPath = classPool.appendClassPath("./application/");
+                applicationPath = classPool.appendClassPath("./newApplication/");
                 systemPath = classPool.appendSystemPath();
             } catch (NotFoundException e) {
                 e.printStackTrace();
@@ -150,18 +150,25 @@ public class JarService {
             if (this.jarOutputStream != null) {
                 jarOutputStream.close();
             }
+            if(this.jarInputStream != null) {
+                jarInputStream.close();
+            }
             if (this.manifest == null) {
                 this.manifest = new Manifest();
                 this.manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
             }
             String outputPath = this.jarPath.replace(".jar", "02.jar");
+            System.out.println(this.manifest.toString());
             this.jarOutputStream = new JarOutputStream(new FileOutputStream(outputPath), this.manifest);
+            this.manifest = null;
             classPool.removeClassPath(applicationPath);
             classPool.removeClassPath(systemPath);
-            File application = new File("application");
+            classPool = null;
+            File application = new File("newApplication");
             addToJar(application, this.jarOutputStream);
             this.jarOutputStream.close();
-            application.deleteOnExit();
+            this.jarEntries.clear();
+            deleteDirectory(application);
         }
     }
 
@@ -173,8 +180,8 @@ public class JarService {
                 if (!name.isEmpty()) {
                     if (!name.endsWith("/"))
                         name += "/";
-                    if (!name.equals("application/")) {
-                        name = name.replace("application/", "");
+                    if (!name.equals("newApplication/")) {
+                        name = name.replace("newApplication/", "");
                         JarEntry entry = new JarEntry(name);
                         entry.setTime(source.lastModified());
                         target.putNextEntry(entry);
@@ -182,14 +189,14 @@ public class JarService {
                     }
                 }
                 for (File nestedFile : source.listFiles()) {
-                    if (!nestedFile.getName().equals("META-INF"))
+                    if (!nestedFile.getName().equals("MANIFEST.MF"))
                         addToJar(nestedFile, target);
                 }
 
                 return;
             }
 
-            JarEntry entry = new JarEntry(source.getPath().replace("\\", "/").replace("application/", ""));
+            JarEntry entry = new JarEntry(source.getPath().replace("\\", "/").replace("newApplication/", ""));
             entry.setTime(source.lastModified());
             target.putNextEntry(entry);
             in = new BufferedInputStream(new FileInputStream(source));
@@ -211,7 +218,17 @@ public class JarService {
     public boolean removeFile(String classPath) {
         String filePath = classPath.replace(".", "\\");
         filePath = filePath.replace("\\class", ".class");
-        File file = new File("application\\" + filePath);
+        File file = new File("newApplication\\" + filePath);
         return file.delete();
+    }
+
+    boolean deleteDirectory(File directoryToBeDeleted) {
+        File[] allContents = directoryToBeDeleted.listFiles();
+        if (allContents != null) {
+            for (File file : allContents) {
+                deleteDirectory(file);
+            }
+        }
+        return directoryToBeDeleted.delete();
     }
 }

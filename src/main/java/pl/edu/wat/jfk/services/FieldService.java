@@ -64,7 +64,7 @@ public class FieldService {
             } else {
                 ctClass.addField(ctField, initializer);
             }
-            ctClass.writeFile("./application/");
+            ctClass.writeFile("./newApplication/");
             jarService.updateJarEntries(new JarEntry(classPath));
     }
 
@@ -84,7 +84,7 @@ public class FieldService {
                 throw new NoSuchFieldException();
             }
             ctClass.removeField(fieldToRemove);
-            ctClass.writeFile("./application/");
+            ctClass.writeFile("./newApplication/");
             jarService.updateJarEntries(new JarEntry(classPath));
     }
 

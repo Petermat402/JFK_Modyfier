@@ -66,7 +66,7 @@ public class PrimaryViewController {
         methodService = new MethodService(jarService, modifierService);
         packageService = new PackageService(jarService);
         classService = new ClassService(jarService, modifierService);
-        intefaceService = new IntefaceService(jarService, modifierService);
+        intefaceService = new IntefaceService(jarService, modifierService, classService);
     }
 
     private void addChoices() {
@@ -259,6 +259,7 @@ public class PrimaryViewController {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             constructorService.addConstructor(jarEntry.getName(), textArea.getText());
             classList.setItems(jarService.getJarEntries());
+            fieldList.setItems(constructorService.getConstructors(jarEntry.getName()));
             handleSuccess();
         } catch (WrongPathException | CannotCompileException | IOException | NotFoundException e){
             handleException(e);
@@ -270,6 +271,7 @@ public class PrimaryViewController {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             constructorService.removeConstructor(jarEntry.getName(), (String) fieldList.getSelectionModel().getSelectedItem());
             classList.setItems(jarService.getJarEntries());
+            fieldList.setItems(constructorService.getConstructors(jarEntry.getName()));
             handleSuccess();
         } catch (WrongPathException | CannotCompileException | IOException | NotFoundException | NoSuchMethodException e){
             handleException(e);
@@ -290,6 +292,7 @@ public class PrimaryViewController {
         try {
             fieldService.addField(jarEntry.getName(), textArea.getText());
             classList.setItems(jarService.getJarEntries());
+            fieldList.setItems(fieldService.getFields(jarEntry.getName()));
             handleSuccess();
         } catch (WrongPathException | CannotCompileException | IOException | NotFoundException e) {
             handleException(e);
@@ -301,6 +304,7 @@ public class PrimaryViewController {
             String selectedField = (String) fieldList.getSelectionModel().getSelectedItems().get(0);
             fieldService.removeField(jarEntry.getName(), selectedField.substring(selectedField.lastIndexOf(" ") + 1));
             classList.setItems(jarService.getJarEntries());
+            fieldList.setItems(fieldService.getFields(jarEntry.getName()));
             handleSuccess();
         } catch (WrongPathException | CannotCompileException | NoSuchFieldException | IOException | NotFoundException e) {
             handleException(e);
@@ -311,6 +315,7 @@ public class PrimaryViewController {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             methodService.addMethod(jarEntry.getName(), textArea.getText());
             classList.setItems(jarService.getJarEntries());
+            fieldList.setItems(methodService.getMethods(jarEntry.getName()));
             handleSuccess();
         } catch (WrongPathException | CannotCompileException | IOException | NotFoundException e){
             handleException(e);
@@ -321,6 +326,7 @@ public class PrimaryViewController {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             methodService.removeMethod(jarEntry.getName(), (String) fieldList.getSelectionModel().getSelectedItem());
             classList.setItems(jarService.getJarEntries());
+            fieldList.setItems(methodService.getMethods(jarEntry.getName()));
             handleSuccess();
         } catch (WrongPathException | CannotCompileException | NoSuchMethodException | IOException | NotFoundException e) {
             handleException(e);
@@ -341,7 +347,7 @@ public class PrimaryViewController {
         try {
             classService.addClass(textArea.getText());
             handleSuccess();
-        } catch (CannotCompileException | IOException e) {
+        } catch (CannotCompileException | IOException | NotFoundException e) {
             handleException(e);
         }
     }
@@ -358,7 +364,7 @@ public class PrimaryViewController {
         try {
             intefaceService.addInterface(textArea.getText());
             handleSuccess();
-        } catch (CannotCompileException | IOException e) {
+        } catch (CannotCompileException | IOException | NotFoundException e) {
             handleException(e);
         }
     }

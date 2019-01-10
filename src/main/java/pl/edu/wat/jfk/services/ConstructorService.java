@@ -42,7 +42,7 @@ public class ConstructorService {
         ctClass.defrost();
         CtConstructor ctConstructor = CtNewConstructor.make(newConstructor, ctClass);
         ctClass.addConstructor(ctConstructor);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
     }
 
@@ -53,7 +53,7 @@ public class ConstructorService {
         ctClass.defrost();
         CtConstructor ctConstructor = findConstructor(constructorName, newClassPath);
         ctClass.removeConstructor(ctConstructor);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
     }
 
@@ -64,7 +64,7 @@ public class ConstructorService {
         ctClass.defrost();
         CtConstructor ctConstructor = findConstructor(constructorName, newClassPath);
         ctConstructor.setBody(constructorCode);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
     }
 

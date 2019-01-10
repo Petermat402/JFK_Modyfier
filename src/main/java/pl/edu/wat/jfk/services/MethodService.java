@@ -54,7 +54,7 @@ public class MethodService {
         ctClass.defrost();
         CtMethod ctMethod = CtNewMethod.make(newMethod, ctClass);
         ctClass.addMethod(ctMethod);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
     }
 
@@ -66,7 +66,7 @@ public class MethodService {
         ctClass.defrost();
         CtMethod methodToOverwrite = findMethod(newMethodName, newClassPath);
         methodToOverwrite.setBody(methodCode);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
 
     }
@@ -79,7 +79,7 @@ public class MethodService {
         ctClass.defrost();
         CtMethod methodToModify = findMethod(newMethodName, newClassPath);
         methodToModify.insertBefore(methodCode);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
     }
 
@@ -91,7 +91,7 @@ public class MethodService {
         ctClass.defrost();
         CtMethod methodToModify = findMethod(newMethodName, newClassPath);
         methodToModify.insertAfter(methodCode);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
 
     }
@@ -104,7 +104,7 @@ public class MethodService {
         ctClass.defrost();
         CtMethod methodToRemove = findMethod(newMethodName, newClassPath);
         ctClass.removeMethod(methodToRemove);
-        ctClass.writeFile("./application/");
+        ctClass.writeFile("./newApplication/");
         jarService.updateJarEntries(new JarEntry(classPath));
 
     }
