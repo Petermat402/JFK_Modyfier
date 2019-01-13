@@ -377,8 +377,23 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
-    private void addPackage() {}
-    private void removePackage() {}
+    private void addPackage() {
+        try {
+            packageService.addPackage(textArea.getText());
+            handleSuccess();
+        } catch (NotFoundException e) {
+            handleException(e);
+        }
+    }
+    private void removePackage() {
+        try {
+            JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
+            packageService.removePackage(jarEntry.getName());
+            handleSuccess();
+        } catch (Exception e ){
+            handleException(e);
+        }
+    }
 
     public void exportJar() {
         try {

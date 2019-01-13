@@ -30,6 +30,9 @@ public class ModifierService {
         if(declaration.contains(" volatile ") || declaration.contains("volatile ")) {
             modifier += Modifier.VOLATILE;
         }
+        if(declaration == "") {
+            modifier = Modifier.PUBLIC;
+        }
         return modifier;
     }
 

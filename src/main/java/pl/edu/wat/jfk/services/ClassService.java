@@ -30,6 +30,7 @@ public class ClassService {
 
         String newClassName = className.split("implements")[0].split(" extends ")[0];
         CtClass ctClass = classPool.makeClass(newClassName);
+        newClassName = newClassName.replace(".","/");
         ctClass.setModifiers(modifier);
         if (superClass != null) {
             ctClass.setSuperclass(superClass);

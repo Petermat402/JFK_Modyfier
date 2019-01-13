@@ -29,9 +29,12 @@ public class IntefaceService {
         CtClass superClass = classService.getSuperClass(intefaceName, classPool);
         List<CtClass> interfaces = classService.getInterfaces(intefaceName, classPool);
 
-        CtClass ctClass = classPool.makeInterface(intefaceName);
-        ctClass.setModifiers(modifier);
+        String newInterfaceName = intefaceName.split("implements")[0].split(" extends ")[0];
 
+        CtClass ctClass = classPool.makeInterface(newInterfaceName);
+
+        newInterfaceName = newInterfaceName.replace(".", "/");
+        // ctClass.setModifiers(modifier);
         if (superClass != null) {
             ctClass.setSuperclass(superClass);
         }
@@ -39,7 +42,7 @@ public class IntefaceService {
             ctClass.setInterfaces(interfaces.toArray(new CtClass[interfaces.size()]));
         }
         ctClass.writeFile("./newApplication/");
-        jarService.updateJarEntries(new JarEntry(intefaceName + ".class"));
+        jarService.updateJarEntries(new JarEntry(newInterfaceName + ".class"));
     }
 
     public void removeInterface(String classPath) throws WrongPathException, NotFoundException {
