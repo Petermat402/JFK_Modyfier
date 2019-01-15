@@ -34,7 +34,6 @@ public class IntefaceService {
         CtClass ctClass = classPool.makeInterface(newInterfaceName);
 
         newInterfaceName = newInterfaceName.replace(".", "/");
-        // ctClass.setModifiers(modifier);
         if (superClass != null) {
             ctClass.setSuperclass(superClass);
         }

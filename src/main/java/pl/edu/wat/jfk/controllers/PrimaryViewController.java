@@ -6,11 +6,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
 import pl.edu.wat.jfk.exceptions.WrongPathException;
 import pl.edu.wat.jfk.services.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarEntry;
 
@@ -23,6 +27,7 @@ public class PrimaryViewController {
     private static ClassService classService;
     private static PackageService packageService;
     private static IntefaceService intefaceService;
+    private static Stage stage;
 
     @FXML
     private ListView classList;
@@ -35,12 +40,6 @@ public class PrimaryViewController {
     @FXML
     private ComboBox classChoice;
     @FXML
-    private ProgressIndicator progressIndicator;
-    @FXML
-    private Button addButton;
-    @FXML
-    private Button removeButton;
-    @FXML
     private Button overwriteButton;
     @FXML
     private TextArea textArea;
@@ -52,13 +51,8 @@ public class PrimaryViewController {
     private Button addEndButton;
     @FXML
     private Circle indicatorCircle;
-    @FXML
-    private Button addClassButton;
-    @FXML
-    private Button removeClassButton;
 
-
-    public static void init(JarService jarService1) {
+    public static void init(JarService jarService1, Stage primaryStage) {
         jarService = jarService1;
         ModifierService modifierService = new ModifierService();
         fieldService = new FieldService(jarService, modifierService);
@@ -67,6 +61,7 @@ public class PrimaryViewController {
         packageService = new PackageService(jarService);
         classService = new ClassService(jarService, modifierService);
         intefaceService = new IntefaceService(jarService, modifierService, classService);
+        stage = primaryStage;
     }
 
     private void addChoices() {
@@ -83,6 +78,7 @@ public class PrimaryViewController {
         classChoices.add("Package");
         classChoice.setItems(classChoices);
     }
+
     private void handleException(Exception e) {
         indicatorCircle.setFill(Color.RED);
         System.err.println(e.toString() + "\n\n");
@@ -93,8 +89,17 @@ public class PrimaryViewController {
         indicatorCircle.setFill(Color.GREEN);
     }
 
+    private FileChooser getFileChooser(String title) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(title);
+        fileChooser.setInitialDirectory(new File("."));
+        fileChooser.getExtensionFilters().addAll(
+                new ExtensionFilter("Jar Files", "*.jar"),
+                new ExtensionFilter("All Files", "*.*"));
+        return fileChooser;
+    }
+
     public void loadJar() {
-        progressIndicator.setVisible(true);
         try {
             classList.setItems(jarService.openNewJar(jarPath.getText()));
             handleSuccess();
@@ -104,12 +109,21 @@ public class PrimaryViewController {
         addChoices();
     }
 
+    public void pickFile() {
+        FileChooser fileChooser = getFileChooser("Open .Jar File");
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        jarPath.setText(selectedFile.getAbsolutePath());
+        loadJar();
+    }
+
+
+
     public void chooseField() {
         fieldList.getItems().clear();
         try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
-            actionLabel.setText((String)choiceBar.getSelectionModel().getSelectedItem());
-        switch (choiceBar.getSelectionModel().getSelectedIndex()) {
+            actionLabel.setText((String) choiceBar.getSelectionModel().getSelectedItem());
+            switch (choiceBar.getSelectionModel().getSelectedIndex()) {
                 case 0: {
                     switchEnablenessButtons(0);
                     fieldList.setItems(constructorService.getConstructors(jarEntry.getName()));
@@ -125,26 +139,26 @@ public class PrimaryViewController {
                     fieldList.setItems(methodService.getMethods(jarEntry.getName()));
                 }
             }
-        }catch (WrongPathException e) {
-           handleException(e);
+        } catch (WrongPathException e) {
+            handleException(e);
         }
     }
 
     private void switchEnablenessButtons(int choiceBarIndex) {
-        switch(choiceBarIndex){
-            case 0 : {
+        switch (choiceBarIndex) {
+            case 0: {
                 overwriteButton.setDisable(false);
                 addBeginningButton.setDisable(true);
                 addEndButton.setDisable(true);
                 return;
             }
-            case 1 : {
+            case 1: {
                 overwriteButton.setDisable(true);
                 addBeginningButton.setDisable(true);
                 addEndButton.setDisable(true);
                 return;
             }
-            case 2 : {
+            case 2: {
                 overwriteButton.setDisable(false);
                 addBeginningButton.setDisable(false);
                 addEndButton.setDisable(false);
@@ -158,42 +172,44 @@ public class PrimaryViewController {
                 addConstructor();
                 break;
             }
-            case 1 : {
+            case 1: {
                 addField();
                 break;
             }
-            case 2 : {
+            case 2: {
                 addMethod();
                 break;
             }
         }
     }
+
     public void removeAction() {
         switch (choiceBar.getSelectionModel().getSelectedIndex()) {
             case 0: {
                 removeConstructor();
                 break;
             }
-            case 1 : {
+            case 1: {
                 removeField();
                 break;
             }
-            case 2 : {
+            case 2: {
                 removeMethod();
                 break;
             }
         }
     }
+
     public void overwriteAction() {
         switch (choiceBar.getSelectionModel().getSelectedIndex()) {
             case 0: {
                 overwriteConstructor();
                 break;
             }
-            case 1 : {
+            case 1: {
                 return;
             }
-            case 2 : {
+            case 2: {
                 overwriteMethod();
                 break;
             }
@@ -206,27 +222,28 @@ public class PrimaryViewController {
                 addClass();
                 break;
             }
-            case 1 : {
+            case 1: {
                 addInterface();
                 break;
             }
-            case 2 : {
+            case 2: {
                 addPackage();
                 break;
             }
         }
     }
+
     public void removeClassAction() {
         switch (classChoice.getSelectionModel().getSelectedIndex()) {
             case 0: {
                 removeClass();
                 break;
             }
-            case 1 : {
+            case 1: {
                 removeInterface();
                 break;
             }
-            case 2 : {
+            case 2: {
                 removePackage();
                 break;
             }
@@ -243,6 +260,7 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     public void addAtEndMethod() {
         try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
@@ -255,38 +273,41 @@ public class PrimaryViewController {
     }
 
     private void addConstructor() {
-        try{
+        try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             constructorService.addConstructor(jarEntry.getName(), textArea.getText());
             classList.setItems(jarService.getJarEntries());
             fieldList.setItems(constructorService.getConstructors(jarEntry.getName()));
             handleSuccess();
-        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException e){
+        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException e) {
             handleException(e);
         }
 
     }
+
     private void removeConstructor() {
-        try{
+        try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             constructorService.removeConstructor(jarEntry.getName(), (String) fieldList.getSelectionModel().getSelectedItem());
             classList.setItems(jarService.getJarEntries());
             fieldList.setItems(constructorService.getConstructors(jarEntry.getName()));
             handleSuccess();
-        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException | NoSuchMethodException e){
+        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException | NoSuchMethodException e) {
             handleException(e);
         }
     }
+
     private void overwriteConstructor() {
-        try{
+        try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             constructorService.overwriteConstructor(jarEntry.getName(), (String) fieldList.getSelectionModel().getSelectedItem(), textArea.getText());
             classList.setItems(jarService.getJarEntries());
             handleSuccess();
-        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException | NoSuchMethodException e){
+        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException | NoSuchMethodException e) {
             handleException(e);
         }
     }
+
     private void addField() {
         JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
         try {
@@ -298,6 +319,7 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     private void removeField() {
         JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
         try {
@@ -310,17 +332,19 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     private void addMethod() {
-        try{
+        try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             methodService.addMethod(jarEntry.getName(), textArea.getText());
             classList.setItems(jarService.getJarEntries());
             fieldList.setItems(methodService.getMethods(jarEntry.getName()));
             handleSuccess();
-        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException e){
+        } catch (WrongPathException | CannotCompileException | IOException | NotFoundException e) {
             handleException(e);
         }
     }
+
     private void removeMethod() {
         try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
@@ -332,6 +356,7 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     private void overwriteMethod() {
         try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
@@ -351,15 +376,17 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     private void removeClass() {
         try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             classService.removeClass(jarEntry.getName());
             handleSuccess();
         } catch (WrongPathException | NotFoundException e) {
-           handleException(e);
+            handleException(e);
         }
     }
+
     private void addInterface() {
         try {
             intefaceService.addInterface(textArea.getText());
@@ -368,6 +395,7 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     private void removeInterface() {
         try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
@@ -377,6 +405,7 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     private void addPackage() {
         try {
             packageService.addPackage(textArea.getText());
@@ -385,25 +414,25 @@ public class PrimaryViewController {
             handleException(e);
         }
     }
+
     private void removePackage() {
         try {
             JarEntry jarEntry = (JarEntry) classList.getSelectionModel().getSelectedItems().get(0);
             packageService.removePackage(jarEntry.getName());
             handleSuccess();
-        } catch (Exception e ){
+        } catch (Exception e) {
             handleException(e);
         }
     }
 
     public void exportJar() {
+        FileChooser fileChooser = getFileChooser("Save .Jar File");
+        File saveFile = fileChooser.showSaveDialog(stage);
         try {
-            jarService.exportJar();
+            jarService.exportJar(saveFile.getAbsolutePath());
             handleSuccess();
         } catch (IOException e) {
             handleException(e);
         }
     }
-
-
-
 }

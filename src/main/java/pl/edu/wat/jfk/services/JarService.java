@@ -7,6 +7,7 @@ import pl.edu.wat.jfk.exceptions.WrongPathException;
 
 import java.io.*;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.jar.*;
 
 public class JarService {
@@ -35,7 +36,7 @@ public class JarService {
         // fist get all directories,
         // then make those directory on the destination Path
         for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements(); ) {
-            JarEntry entry = (JarEntry) enums.nextElement();
+            JarEntry entry = enums.nextElement();
 
             String fileName = destinationDir + File.separator + entry.getName();
             File f = new File(fileName);
@@ -46,7 +47,7 @@ public class JarService {
         }
         //now create all files
         for (Enumeration<JarEntry> enums = jar.entries(); enums.hasMoreElements(); ) {
-            JarEntry entry = (JarEntry) enums.nextElement();
+            JarEntry entry = enums.nextElement();
 
             String fileName = destinationDir + File.separator + entry.getName();
             File f = new File(fileName);
@@ -71,18 +72,8 @@ public class JarService {
     public ObservableList<JarEntry> openNewJar(String jarPath) throws WrongPathException, IOException {
         ObservableList<JarEntry> jarEntryList = FXCollections.observableArrayList();
         if (jarPath.endsWith(".jar")) {
-            try {
-                if (jarInputStream != null) {
-                    jarInputStream.close();
-                }
-                if (jarOutputStream != null) {
-                    jarOutputStream.close();
-                }
-            } catch (IOException e) {
-                System.err.println(e.toString());
-            }
+            closeInputStreams();
             this.jarPath = jarPath;
-
             unzipJar("./newApplication/", this.jarPath);
 
             File jarFile = new File(jarPath);
@@ -93,15 +84,7 @@ public class JarService {
             while ((jarEnrty = jarInputStream.getNextJarEntry()) != null) {
                 jarEntryList.add(jarEnrty);
             }
-            try {
-                classPool = new ClassPool();
-                applicationPath = classPool.appendClassPath("./newApplication/");
-                systemPath = classPool.appendSystemPath();
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            } finally {
-                jarInputStream.close();
-            }
+            createClassPool();
 
         } else {
             throw new WrongPathException();
@@ -110,7 +93,32 @@ public class JarService {
         return jarEntryList;
     }
 
-    public String adjustClassPath(String classPath) throws WrongPathException {
+    private void createClassPool() throws IOException {
+        try {
+            classPool = new ClassPool();
+            applicationPath = classPool.appendClassPath("./newApplication/");
+            systemPath = classPool.appendSystemPath();
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            jarInputStream.close();
+        }
+    }
+
+    private void closeInputStreams() {
+        try {
+            if (jarInputStream != null) {
+                jarInputStream.close();
+            }
+            if (jarOutputStream != null) {
+                jarOutputStream.close();
+            }
+        } catch (IOException e) {
+            System.err.println(e.toString());
+        }
+    }
+
+    String adjustClassPath(String classPath) throws WrongPathException {
         if (!classPath.endsWith(".class")) {
             throw new WrongPathException();
         }
@@ -118,7 +126,7 @@ public class JarService {
         return classPath;
     }
 
-    public ClassPool getClassPool() {
+    ClassPool getClassPool() {
         return classPool;
     }
 
@@ -126,7 +134,7 @@ public class JarService {
         return this.jarEntries;
     }
 
-    public void updateJarEntries(JarEntry jarEntry) {
+    void updateJarEntries(JarEntry jarEntry) {
         for (int i = 0; i < this.jarEntries.size(); i++) {
             if (this.jarEntries.get(i).getName().equals(jarEntry.getName())) {
                 this.jarEntries.set(i, jarEntry);
@@ -136,7 +144,7 @@ public class JarService {
         this.jarEntries.add(jarEntry);
     }
 
-    public void removeJarEntry(JarEntry jarEntry) {
+    void removeJarEntry(JarEntry jarEntry) {
         for (int i = 0; i < this.jarEntries.size(); i++) {
             if (this.jarEntries.get(i).getName().equals(jarEntry.getName())) {
                 this.jarEntries.remove(this.jarEntries.get(i));
@@ -145,7 +153,7 @@ public class JarService {
         }
     }
 
-    public void exportJar() throws IOException {
+    public void exportJar(String savePath) throws IOException {
         if (this.jarPath != null && this.jarPath.endsWith(".jar")) {
             if (this.jarOutputStream != null) {
                 jarOutputStream.close();
@@ -157,9 +165,8 @@ public class JarService {
                 this.manifest = new Manifest();
                 this.manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
             }
-            String outputPath = this.jarPath.replace(".jar", "02.jar");
             System.out.println(this.manifest.toString());
-            this.jarOutputStream = new JarOutputStream(new FileOutputStream(outputPath), this.manifest);
+            this.jarOutputStream = new JarOutputStream(new FileOutputStream(savePath), this.manifest);
             this.manifest = null;
             classPool.removeClassPath(applicationPath);
             classPool.removeClassPath(systemPath);
@@ -170,6 +177,7 @@ public class JarService {
             this.jarEntries.clear();
             deleteDirectory(application);
         }
+        this.jarPath = "";
     }
 
     private void addToJar(File source, JarOutputStream target) throws IOException {
@@ -188,7 +196,7 @@ public class JarService {
                         target.closeEntry();
                     }
                 }
-                for (File nestedFile : source.listFiles()) {
+                for (File nestedFile : Objects.requireNonNull(source.listFiles())) {
                     if (!nestedFile.getName().equals("MANIFEST.MF"))
                         addToJar(nestedFile, target);
                 }
@@ -215,7 +223,7 @@ public class JarService {
         }
     }
 
-    public boolean removeFile(String classPath) {
+    boolean removeFile(String classPath) {
         String filePath = classPath.replace(".", "\\");
         filePath = filePath.replace("\\class", ".class");
         File file = new File("newApplication\\" + filePath);
